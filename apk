@@ -1,159 +1,93 @@
-// File: MainActivity.kt
-package com.example.financetracker
+import { useState, useEffect } from "react";
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import com.example.financetracker.ui.theme.FinanceTrackerTheme
+const getInitialTransactions = () => {
+  const saved = localStorage.getItem("transactions");
+  return saved ? JSON.parse(saved) : [];
+};
 
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            FinanceTrackerTheme(darkTheme = true) {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    DashboardScreen()
-                }
-            }
-        }
-    }
-}
+export default function App() {
+  const [transactions, setTransactions] = useState(getInitialTransactions);
+  const [form, setForm] = useState({ amount: "", type: "income", note: "" });
 
-// File: DashboardScreen.kt
-package com.example.financetracker
+  const balance = transactions.reduce(
+    (acc, t) => t.type === "income" ? acc + t.amount : acc - t.amount,
+    0
+  );
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
+  useEffect(() => {
+    localStorage.setItem("transactions", JSON.stringify(transactions));
+  }, [transactions]);
 
-@Composable
-fun DashboardScreen() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Text("Total Saldo", style = MaterialTheme.typography.titleLarge)
-        Text("Rp 5.000.000", style = MaterialTheme.typography.headlineMedium)
+  const addTransaction = () => {
+    if (!form.amount || isNaN(+form.amount)) return;
+    setTransactions([
+      ...transactions,
+      { ...form, amount: +form.amount, id: Date.now() },
+    ]);
+    setForm({ amount: "", type: "income", note: "" });
+  };
 
-        Card(modifier = Modifier.fillMaxWidth()) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text("Grafik Pengeluaran", style = MaterialTheme.typography.titleMedium)
-                // Placeholder grafik
-                Box(
-                    modifier = Modifier
-                        .height(200.dp)
-                        .fillMaxWidth()
-                        .padding(top = 8.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("[Grafik akan ditampilkan di sini]")
-                }
-            }
-        }
-    }
-}
+  return (
+    <div className="min-h-screen bg-gray-900 text-white p-6">
+      <h1 className="text-3xl font-bold mb-4">Finance Tracker</h1>
+      <div className="bg-gray-800 p-4 rounded-xl shadow mb-6">
+        <h2 className="text-xl">Total Saldo</h2>
+        <p className="text-2xl font-semibold">Rp {balance.toLocaleString()}</p>
+      </div>
 
-// File: Transaction.kt
-package com.example.financetracker.model
+      <div className="bg-gray-800 p-4 rounded-xl shadow mb-6">
+        <h2 className="text-lg mb-2">Tambah Transaksi</h2>
+        <div className="flex gap-2 mb-2">
+          <input
+            type="number"
+            placeholder="Jumlah"
+            value={form.amount}
+            onChange={(e) => setForm({ ...form, amount: e.target.value })}
+            className="flex-1 p-2 rounded bg-gray-700 text-white"
+          />
+          <select
+            value={form.type}
+            onChange={(e) => setForm({ ...form, type: e.target.value })}
+            className="p-2 rounded bg-gray-700 text-white"
+          >
+            <option value="income">Pemasukan</option>
+            <option value="expense">Pengeluaran</option>
+          </select>
+        </div>
+        <input
+          type="text"
+          placeholder="Catatan"
+          value={form.note}
+          onChange={(e) => setForm({ ...form, note: e.target.value })}
+          className="w-full p-2 rounded bg-gray-700 text-white mb-2"
+        />
+        <button
+          onClick={addTransaction}
+          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+        >
+          Simpan
+        </button>
+      </div>
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import java.util.*
-
-@Entity(tableName = "transactions")
-data class Transaction(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val type: String, // income or expense
-    val amount: Int,
-    val category: String,
-    val date: Long,
-    val note: String?
-)
-
-// File: TransactionDao.kt
-package com.example.financetracker.data
-
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
-import com.example.financetracker.model.Transaction
-
-@Dao
-interface TransactionDao {
-    @Query("SELECT * FROM transactions ORDER BY date DESC")
-    suspend fun getAll(): List<Transaction>
-
-    @Insert
-    suspend fun insert(transaction: Transaction)
-}
-
-// File: AppDatabase.kt
-package com.example.financetracker.data
-
-import android.content.Context
-import androidx.room.Database
-import androidx.room.Room
-import androidx.room.RoomDatabase
-import com.example.financetracker.model.Transaction
-
-@Database(entities = [Transaction::class], version = 1)
-abstract class AppDatabase : RoomDatabase() {
-    abstract fun transactionDao(): TransactionDao
-
-    companion object {
-        @Volatile private var instance: AppDatabase? = null
-
-        fun getDatabase(context: Context): AppDatabase =
-            instance ?: synchronized(this) {
-                instance ?: Room.databaseBuilder(
-                    context.applicationContext,
-                    AppDatabase::class.java,
-                    "finance_tracker_db"
-                ).build().also { instance = it }
-            }
-    }
-}
-
-// File: ui/theme/Theme.kt
-package com.example.financetracker.ui.theme
-
-import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
-
-private val DarkColorScheme = darkColorScheme(
-    primary = Color(0xFFBB86FC),
-    secondary = Color(0xFF03DAC6),
-    background = Color(0xFF121212),
-    surface = Color(0xFF1F1F1F),
-    onPrimary = Color.Black,
-    onSecondary = Color.Black,
-    onBackground = Color.White,
-    onSurface = Color.White
-)
-
-@Composable
-fun FinanceTrackerTheme(
-    darkTheme: Boolean = true,
-    content: @Composable () -> Unit
-) {
-    MaterialTheme(
-        colorScheme = DarkColorScheme,
-        typography = Typography(),
-        content = content
-    )
+      <div className="bg-gray-800 p-4 rounded-xl shadow">
+        <h2 className="text-lg mb-2">Riwayat Transaksi</h2>
+        {transactions.length === 0 ? (
+          <p className="text-gray-400">Belum ada transaksi</p>
+        ) : (
+          <ul className="space-y-2">
+            {transactions.map((t) => (
+              <li key={t.id} className="flex justify-between">
+                <span>
+                  {t.note || "(Tanpa catatan)"} - {t.type === "income" ? "+" : "-"}Rp {t.amount.toLocaleString()}
+                </span>
+                <span className="text-sm text-gray-400">
+                  {new Date(t.id).toLocaleDateString()}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
 }
