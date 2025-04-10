@@ -19,6 +19,16 @@ function App() {
     setAmount('');
   };
 
+  const totalPemasukan = transactions
+  .filter((t) => t.type === 'pemasukan')
+  .reduce((sum, t) => sum + t.amount, 0);
+
+const totalPengeluaran = transactions
+  .filter((t) => t.type === 'pengeluaran')
+  .reduce((sum, t) => sum + t.amount, 0);
+
+const saldo = totalPemasukan - totalPengeluaran;
+
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6">
       <h1 className="text-2xl font-bold mb-4">Aplikasi Keuangan Pribadi</h1>
