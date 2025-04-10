@@ -10,6 +10,7 @@ function App() {
   const [amount, setAmount] = useState('');
   const [type, setType] = useState('pemasukan');
 
+  // Simpan ke localStorage setiap ada perubahan transaksi
   useEffect(() => {
     localStorage.setItem('transactions', JSON.stringify(transactions));
   }, [transactions]);
@@ -25,6 +26,11 @@ function App() {
     setTransactions([newTransaction, ...transactions]);
     setName('');
     setAmount('');
+  };
+
+  const handleDelete = (id) => {
+    const updated = transactions.filter((t) => t.id !== id);
+    setTransactions(updated);
   };
 
   const totalPemasukan = transactions
@@ -94,14 +100,22 @@ function App() {
         {transactions.map((tx) => (
           <li
             key={tx.id}
-            className={`p-3 rounded ${tx.type === 'pemasukan' ? 'bg-green-700' : 'bg-red-700'}`}
+            className={`p-3 rounded flex justify-between items-center ${
+              tx.type === 'pemasukan' ? 'bg-green-700' : 'bg-red-700'
+            }`}
           >
-            <div className="flex justify-between">
-              <span>{tx.name}</span>
-              <span>
+            <div>
+              <p className="font-medium">{tx.name}</p>
+              <p>
                 {tx.type === 'pengeluaran' ? '-' : '+'} Rp{tx.amount.toLocaleString()}
-              </span>
+              </p>
             </div>
+            <button
+              onClick={() => handleDelete(tx.id)}
+              className="text-white bg-gray-800 hover:bg-gray-700 rounded px-2 py-1 text-sm"
+            >
+              ❌
+            </button>
           </li>
         ))}
       </ul>
