@@ -30,6 +30,7 @@ const totalPengeluaran = transactions
 const saldo = totalPemasukan - totalPengeluaran;
 
   return (
+   
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
   <div className="bg-green-800 p-4 rounded">
     <h3 className="text-lg font-semibold">Pemasukan</h3>
@@ -44,8 +45,7 @@ const saldo = totalPemasukan - totalPengeluaran;
     <p className="text-2xl font-bold">Rp{saldo.toLocaleString()}</p>
   </div>
 </div>
-
-    <div className="min-h-screen bg-gray-900 text-white p-6">
+  <div className="min-h-screen bg-gray-900 text-white p-6">
       <h1 className="text-2xl font-bold mb-4">Aplikasi Keuangan Pribadi</h1>
 
       <div className="mb-4 space-y-2">
