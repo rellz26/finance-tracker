@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { FaMoneyBillWave } from 'react-icons/fa';
 
 function App() {
   const [transactions, setTransactions] = useState(() => {
@@ -52,17 +53,32 @@ function App() {
 
         {/* Ringkasan */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-green-600/80 backdrop-blur-md p-6 rounded-3xl shadow-lg">
-            <h3 className="text-sm uppercase text-green-100 mb-1">Pemasukan</h3>
-            <p className="text-3xl font-bold">Rp{totalPemasukan.toLocaleString()}</p>
+          <div className="bg-green-600/90 backdrop-blur-lg p-6 rounded-3xl shadow-2xl flex items-center gap-4">
+            <div className="bg-white/20 p-3 rounded-2xl">
+              <FaMoneyBillWave className="text-3xl text-green-200" />
+            </div>
+            <div>
+              <h3 className="text-sm text-green-100">Pemasukan</h3>
+              <p className="text-2xl font-bold">Rp{totalPemasukan.toLocaleString()}</p>
+            </div>
           </div>
-          <div className="bg-red-600/80 backdrop-blur-md p-6 rounded-3xl shadow-lg">
-            <h3 className="text-sm uppercase text-red-100 mb-1">Pengeluaran</h3>
-            <p className="text-3xl font-bold">Rp{totalPengeluaran.toLocaleString()}</p>
+          <div className="bg-red-600/90 backdrop-blur-lg p-6 rounded-3xl shadow-2xl flex items-center gap-4">
+            <div className="bg-white/20 p-3 rounded-2xl">
+              <FaMoneyBillWave className="text-3xl text-red-200" />
+            </div>
+            <div>
+              <h3 className="text-sm text-red-100">Pengeluaran</h3>
+              <p className="text-2xl font-bold">Rp{totalPengeluaran.toLocaleString()}</p>
+            </div>
           </div>
-          <div className="bg-gray-600/80 backdrop-blur-md p-6 rounded-3xl shadow-lg">
-            <h3 className="text-sm uppercase text-gray-300 mb-1">Saldo</h3>
-            <p className="text-3xl font-bold">Rp{saldo.toLocaleString()}</p>
+          <div className="bg-gray-600/90 backdrop-blur-lg p-6 rounded-3xl shadow-2xl flex items-center gap-4">
+            <div className="bg-white/20 p-3 rounded-2xl">
+              <FaMoneyBillWave className="text-3xl text-gray-200" />
+            </div>
+            <div>
+              <h3 className="text-sm text-gray-300">Saldo</h3>
+              <p className="text-2xl font-bold">Rp{saldo.toLocaleString()}</p>
+            </div>
           </div>
         </section>
 
